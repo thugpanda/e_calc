@@ -28,7 +28,7 @@ float   watts               =   0.0;
 float   crosssection        =   0.0;
 
 string  helpstring          =   "-a, -A, -I, -i\t\tCalculate Impedance in Amperes\n-C, -c, -V, -v\t\tCalculate Current in Volts\n-J, -j\t\t\tCalculate Current Density\n-P, -p\t\t\tCalculate Power in Watts\n-R, -r\t\t\tCalculate Resistance in Ohms\n-RP, -rp\t\tCalculate Parallel Resistance\n-s, -S\t\t\tSchmitt Trigger\nUse -h -[command] for further info";
-string  schmittstring       =   "SCHMITT TRIGGER RESISTOR CALC\nExpects 4 values:\tVRef (prob = VCC)\n\t\t\tRa (inbetween T1 & T2)\n\t\t\tRb (between Ra & GND)\n\t\t\tR1 (inbetween VCC & T1)";
+string  schmittstring       =   "SCHMITT TRIGGER RESISTOR CALC\nExpects 4 values:\tVRef (prob = VCC)\n\t\t\tRa (between T1 & T2)\n\t\t\tRb (between Ra & GND)\n\t\t\tR1 (between VCC & T1)";
 string  impedancestring     =   "IMPEDANCE IN AMPERE CALC\nExpects 2 values:\nCurrent in Volts, Resistance in Ohms";
 string  voltagestring       =   "CURRENT IN VOLTS CALC\nExpects 2 values:\nImpedance in Amperes, Resistance in Ohms";
 string  resistancestring    =   "RESISTANCE IN OHMS\nExpects 2 values:\nCurrent in Volts, Impedance in Amperes";
@@ -142,11 +142,11 @@ int main(int argc, char *argv[]) {
             } else {
                 cout << "VRef?" << endl << "> ";
                 cin >> VRef;
-                cout << "Ra (inbetween T1 & T2)?" << endl << "> ";
+                cout << "Ra (between T1 & T2)?" << endl << "> ";
                 cin >> Ra;
-                cout << "Rb (inbetween Ra & GND)?" << endl << "> ";
+                cout << "Rb (between Ra & GND)?" << endl << "> ";
                 cin >> Rb;
-                cout << "R1 (inbetween VRef & T1)?" << endl << "> ";
+                cout << "R1 (between VRef & T1)?" << endl << "> ";
                 cin >> R1;
             }
             Voltage         =   calcVoltage1();
