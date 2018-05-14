@@ -21,12 +21,20 @@ float   overallResistance   =   0.0;
 float   resistance          =   0.0;    //used for current as well
 float   impedance           =   0.0;    //used for current as well
 
-string  helpstring          =   "-a, -A, -I, -i\t\tCalculate Impedance in Ampere\n-C, -c, -V, -v\t\tCalculate Current in Volts\n-R, -r\t\t\tCalculate Resistance in Ohms\n-RP, -rp\t\tCalculate Parallel Resistance\n-s, -S\t\t\tSchmitt Trigger\nUse -h -[command] for further info";
-string  schmittstring       =   "SCHMITT TRIGGER RESISTOR CALC\nExpects 4 values:\nVRef, Ra, Rb, R1";
+//for power
+float   watts               =   0.0;
+
+//for current density
+float   crosssection        =   0.0;
+
+string  helpstring          =   "-a, -A, -I, -i\t\tCalculate Impedance in Amperes\n-C, -c, -V, -v\t\tCalculate Current in Volts\n-J, -j\t\t\tCalculate Current Density\n-P, -p\t\t\tCalculate Power in Watts\n-R, -r\t\t\tCalculate Resistance in Ohms\n-RP, -rp\t\tCalculate Parallel Resistance\n-s, -S\t\t\tSchmitt Trigger\nUse -h -[command] for further info";
+string  schmittstring       =   "SCHMITT TRIGGER RESISTOR CALC\nExpects 4 values:\tVRef (prob = VCC)\n\t\t\tRa (inbetween T1 & T2)\n\t\t\tRb (between Ra & GND)\n\t\t\tR1 (inbetween VCC & T1)";
 string  impedancestring     =   "IMPEDANCE IN AMPERE CALC\nExpects 2 values:\nCurrent in Volts, Resistance in Ohms";
 string  voltagestring       =   "CURRENT IN VOLTS CALC\nExpects 2 values:\nImpedance in Amperes, Resistance in Ohms";
 string  resistancestring    =   "RESISTANCE IN OHMS\nExpects 2 values:\nCurrent in Volts, Impedance in Amperes";
 string  parallelstring      =   "PARALLEL RESISTANCE IN OHMS\nExpects n values:\nResistance 1 in Ohms, Resistance 2 in Ohms, ...";
+string  wattstring          =   "POWER IN WATTS\nExpects 2 values:\nCurrent in Voltage, Impedance in Amperes";
+string  densitystring       =   "CURRENT DENSITY\nExpects 2 values:\nCross-Sectional Area in mm^2, Impedance in Amperes";
 
 float calcVoltage1() {
     return ((Ra+Rb)/(Ra+Rb+R1))*VRef;
@@ -59,6 +67,14 @@ float calcCurrent() {
     return (impedance * resistance);
 }
 
+float calcPower() {
+    return (Voltage * impedance);
+}
+
+float calcCurrentDensity() {
+    return (impedance/(crosssection));
+}
+
 void printResults(int type) {
     /*
     0 - Schmitt Trigger
@@ -78,6 +94,19 @@ void printResults(int type) {
        cout << "Current in Volts: " << Voltage << endl;
    } else if(type == 4) {
        cout << "Impedance in Ampere: " << impedance << endl;
+   } else if(type == 5) {
+       cout << "Power in Watts: " << watts << endl;
+   } else if(type == 6) {
+       cout << "Current Density in A/mm^2: " << watts << endl;
+       if(watts > 25) {
+           cout << "That's way too high." << endl;
+       } else if(watts <= 25 && watts > 18) {
+           cout << "That's quite high. Maybe a thicker wire?" << endl;
+       } else if(watts <= 18 && watts > 5) {
+           cout << "That's okay." << endl;
+       } else if(watts <= 5) {
+           cout << "There's plenty of room. You could try a thinner wire." << endl;
+       }
    }
 }
 
@@ -95,6 +124,10 @@ int main(int argc, char *argv[]) {
                     cout << voltagestring << endl;
                 } else if(strncmp(argv[2], "-i", 2) == 0 || strncmp(argv[2], "-I", 2) == 0 || strncmp(argv[2], "-a", 2) == 0 || strncmp(argv[2], "-A", 2) == 0) {
                     cout << impedancestring << endl;
+                } else if(strncmp(argv[2], "-p", 2) == 0 || strncmp(argv[2], "-P", 2) == 0) {
+                    cout << wattstring << endl;
+                } else if(strncmp(argv[2], "-j", 2) == 0 || strncmp(argv[2], "-J", 2) == 0) {
+                    cout << densitystring << endl;
                 }
             } else {
                 cout << helpstring << endl;
@@ -176,6 +209,32 @@ int main(int argc, char *argv[]) {
             }
             impedance   =   calcImpedance();
             printResults(4);
+        } else if(strncmp(argv[1], "-P", 2) == 0 || strncmp(argv[1], "-p", 2) == 0) {
+            if(argc > 2) {
+                Voltage     =   stof(argv[2]);
+                impedance   =   stof(argv[3]);
+            } else {
+                cout << "Calculating power in Watts" << endl;
+                cout << "Current/Volts?" << endl << "> ";
+                cin >> Voltage;
+                cout << "Impedance/Amperes?" << endl << "> ";
+                cin >> impedance;
+            }
+            watts           =   calcPower();
+            printResults(5);
+        } else if(strncmp(argv[1], "-J", 2) == 0 || strncmp(argv[1], "-j", 2) == 0) {
+            if(argc > 2) {
+                crosssection    =   stof(argv[2]);
+                impedance       =   stof(argv[3]);
+            } else {
+                cout << "Calculating current density" << endl;
+                cout << "Cross-Section Area of the wire in mm^2?" << endl << "> ";
+                cin >> crosssection;
+                cout << "Impedance/Amperes?" << endl << "> ";
+                cin >> impedance;
+            }
+            watts           =   calcCurrentDensity();
+            printResults(6);
         }
     } else {
         cout << helpstring << endl;
