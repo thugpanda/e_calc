@@ -6,9 +6,10 @@ using namespace std;
 
 // for Schmitt Trigger
 float   VRef                =   0.0;
-float   Ra                  =   0;
-float   Rb                  =   0;
-float   R1                  =   0;
+float   Ra                  =   0;	//Resistor between T1 & T2
+float   Rb                  =   0;	//Resistor between Ra & GND
+float   R1                  =   0;	//Resistor between T1 Collector and VCC
+float	Re		    =   0;	//Resistor between Emitter of T1 and Ground
 float   Voltage             =   0.0;    //used for impedance & current
 float   Voltage2            =   0.0;
 
@@ -28,7 +29,7 @@ float   watts               =   0.0;
 float   crosssection        =   0.0;
 
 string  helpstring          =   "-a, -A, -I, -i\t\tCalculate Impedance in Amperes\n-C, -c, -V, -v\t\tCalculate Current in Volts\n-J, -j\t\t\tCalculate Current Density\n-P, -p\t\t\tCalculate Power in Watts\n-R, -r\t\t\tCalculate Resistance in Ohms\n-RP, -rp\t\tCalculate Parallel Resistance\n-s, -S\t\t\tSchmitt Trigger\nUse -h -[command] for further info";
-string  schmittstring       =   "SCHMITT TRIGGER RESISTOR CALC\nExpects 4 values:\tVRef (prob = VCC)\n\t\t\tRa (between T1 & T2)\n\t\t\tRb (between Ra & GND)\n\t\t\tR1 (between VCC & T1)";
+string  schmittstring       =   "SCHMITT TRIGGER RESISTOR CALC\nExpects 5 values:\tVRef (prob = VCC)\n\t\t\tRa (between T1 & T2)\n\t\t\tRb (between Ra & GND)\n\t\t\tRe (between T1 & GND)\n\t\t\tR1 (between VCC & T1)";
 string  impedancestring     =   "IMPEDANCE IN AMPERE CALC\nExpects 2 values:\nCurrent in Volts, Resistance in Ohms";
 string  voltagestring       =   "CURRENT IN VOLTS CALC\nExpects 2 values:\nImpedance in Amperes, Resistance in Ohms";
 string  resistancestring    =   "RESISTANCE IN OHMS\nExpects 2 values:\nCurrent in Volts, Impedance in Amperes";
@@ -37,11 +38,13 @@ string  wattstring          =   "POWER IN WATTS\nExpects 2 values:\nCurrent in V
 string  densitystring       =   "CURRENT DENSITY\nExpects 2 values:\nCross-Sectional Area in mm^2, Impedance in Amperes";
 
 float calcVoltage1() {
-    return ((Ra+Rb)/(Ra+Rb+R1))*VRef;
+	// high trigger level
+    return (((VRef*Rb)/(R1+Ra+Rb))-0.61);
 }
 
 float calcVoltage2() {
-    return (Rb/(Rb+R1+Ra))*VRef;
+	// low trigger level
+    return (((VRef*Rb)/(R1+Ra+Rb+(R1*(Rb/Re))))+0.61);
 }
 
 float calcParallelResistance(int length) {
@@ -84,8 +87,8 @@ void printResults(int type) {
     4 - Impedance
     */
    if(type == 0) {
-        cout << "Va: " << Voltage << endl;
-        cout << "Trigger Voltage: " << Voltage2 << endl;
+        cout << "High Trigger Voltage: " << Voltage << endl;
+        cout << "Low Trigger Voltage: " << Voltage2 << endl;
    } else if(type == 1) {
        cout << "Parallel Resistance: " << overallResistance << endl;
    } else if(type == 2) {
@@ -138,7 +141,8 @@ int main(int argc, char *argv[]) {
                 VRef    =   stof(argv[2]);
                 Ra      =   stof(argv[3]);
                 Rb      =   stof(argv[4]);
-                R1      =   stof(argv[5]);
+                Re      =   stof(argv[5]);
+		R1	=   stof(argv[6]);
             } else {
                 cout << "VRef?" << endl << "> ";
                 cin >> VRef;
@@ -146,6 +150,8 @@ int main(int argc, char *argv[]) {
                 cin >> Ra;
                 cout << "Rb (between Ra & GND)?" << endl << "> ";
                 cin >> Rb;
+		cout << "Re (between T1 & GND)?" << endl << "> ";
+		cin >> Re;
                 cout << "R1 (between VRef & T1)?" << endl << "> ";
                 cin >> R1;
             }
