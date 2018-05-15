@@ -44,7 +44,7 @@ float calcVoltage1() {
 
 float calcVoltage2() {
 	// low trigger level
-    return (((VRef*Rb)/(R1+Ra+Rb+(R1*(Rb/Re))))+0.61);
+    return (((VRef*Rb)/(R1+Ra+Rb+(R1*Rb)/Re))+0.61);
 }
 
 float calcParallelResistance(int length) {
