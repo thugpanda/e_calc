@@ -45,5 +45,17 @@ Expects 4 values:	VRef
 			R1 (between supply and Collectors of Transistors)
 ```
 
+```
+-tmv, -TMV		Calculate the frequency of oscillation of an Astable Transistor Multivibrator
+
+Expects 2 [or 4] values:
+				Resistance 1
+				Capacitance 1
+				[Resistance 2]
+				[Capacitance 2]
+
+Only four if oscillation is asynchronous (aka R1!=R2 and/or C1!=C2)
+```
+
 Every feature has got a Question-Answer based input option as well.
 
