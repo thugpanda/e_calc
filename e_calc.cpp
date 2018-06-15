@@ -12,6 +12,9 @@ float   R1                  =   0;	//Resistor between T1 Collector and VCC
 float	Re		    =   0;	//Resistor between Emitter of T1 and Ground
 float   Voltage             =   0.0;    //used for impedance & current
 float   Voltage2            =   0.0;
+float   c1                  =   0.0;    //capacitance 1
+float   c2                  =   0.0;    //capacitance 2
+float   r2                  =   0.0;    //resistance 2
 
 // for parallel resistance
 vector<float>   resistors;
@@ -28,7 +31,7 @@ float   watts               =   0.0;
 //for current density
 float   crosssection        =   0.0;
 
-string  helpstring          =   "-a, -A, -I, -i\t\tCalculate Impedance in Amperes\n-C, -c, -V, -v\t\tCalculate Current in Volts\n-J, -j\t\t\tCalculate Current Density\n-P, -p\t\t\tCalculate Power in Watts\n-R, -r\t\t\tCalculate Resistance in Ohms\n-RP, -rp\t\tCalculate Parallel Resistance\n-s, -S\t\t\tSchmitt Trigger\nUse -h -[command] for further info";
+string  helpstring          =   "-a, -A, -I, -i\t\tCalculate Impedance in Amperes\n-C, -c, -V, -v\t\tCalculate Current in Volts\n-J, -j\t\t\tCalculate Current Density\n-P, -p\t\t\tCalculate Power in Watts\n-R, -r\t\t\tCalculate Resistance in Ohms\n-RP, -rp\t\tCalculate Parallel Resistance\n-s, -S\t\t\tSchmitt Trigger\n-tmv, -TMV\t\tAstable Transistor Multivibrator\nUse -h -[command] for further info";
 string  schmittstring       =   "SCHMITT TRIGGER RESISTOR CALC\nExpects 5 values:\tVRef (prob = VCC)\n\t\t\tRa (between T1 & T2)\n\t\t\tRb (between Ra & GND)\n\t\t\tRe (between T1 & GND)\n\t\t\tR1 (between VCC & T1)";
 string  impedancestring     =   "IMPEDANCE IN AMPERE CALC\nExpects 2 values:\nCurrent in Volts, Resistance in Ohms";
 string  voltagestring       =   "CURRENT IN VOLTS CALC\nExpects 2 values:\nImpedance in Amperes, Resistance in Ohms";
@@ -36,6 +39,7 @@ string  resistancestring    =   "RESISTANCE IN OHMS\nExpects 2 values:\nCurrent 
 string  parallelstring      =   "PARALLEL RESISTANCE IN OHMS\nExpects n values:\nResistance 1 in Ohms, Resistance 2 in Ohms, ...";
 string  wattstring          =   "POWER IN WATTS\nExpects 2 values:\nCurrent in Voltage, Impedance in Amperes";
 string  densitystring       =   "CURRENT DENSITY\nExpects 2 values:\nCross-Sectional Area in mm^2, Impedance in Amperes";
+string  vibratorstring      =   "ASTABLE TRANSISTOR MULTIVIBRATOR\nExpects 2 or 4 values:\nResistance 1 [& 2] in Ohms, Capacitance [& 2] in Farad";
 
 float calcVoltage1() {
 	// high trigger level
@@ -74,6 +78,19 @@ float calcPower() {
     return (Voltage * impedance);
 }
 
+float calcVibratorFrequency(int n) {
+    float   f1  =   0.0;
+    float   f2  =   0.0;
+    if(n == 2) {
+        f1      =   1/(1.38 * R1 * c1);
+        return f1;
+    } else if(n == 4) {
+        f2      =   1/(1.38 * r2 * c2);
+        return f2;
+    }
+    return 0;
+}
+
 float calcCurrentDensity() {
     return (impedance/(crosssection));
 }
@@ -85,6 +102,10 @@ void printResults(int type) {
     2 - Resistance
     3 - Current
     4 - Impedance
+    5 - Watts
+    6 - Current Density
+    7 - single frequency
+    8 - dual frequency
     */
    if(type == 0) {
         cout << "High Trigger Voltage: " << Voltage << endl;
@@ -110,6 +131,10 @@ void printResults(int type) {
        } else if(watts <= 5) {
            cout << "There's plenty of room. You could try a thinner wire." << endl;
        }
+   } else if(type == 7) {
+       cout << "Synchronized Vibration\nOscillation in Hertz: " << Voltage << endl;
+   } else if(type == 8) {
+       cout << "Asynchrononous Vibration\nOscillation 1 in Hertz: " << Voltage << endl << "Oscillation 2 in Hertz: " << Voltage2 << endl;
    }
 }
 
@@ -131,6 +156,8 @@ int main(int argc, char *argv[]) {
                     cout << wattstring << endl;
                 } else if(strncmp(argv[2], "-j", 2) == 0 || strncmp(argv[2], "-J", 2) == 0) {
                     cout << densitystring << endl;
+                } else if(strncmp(argv[2], "-tmv", 4) == 0 || strncmp(argv[2], "-TMV", 4) == 0) {
+                    cout << vibratorstring << endl;
                 }
             } else {
                 cout << helpstring << endl;
@@ -241,6 +268,48 @@ int main(int argc, char *argv[]) {
             }
             watts           =   calcCurrentDensity();
             printResults(6);
+        } else if(strncmp(argv[1], "-tmv", 4) == 0 || strncmp(argv[1], "-TMV", 4) == 0) {
+            if(argc > 2) {
+                if(argc < 5) {
+                    R1      =   stof(argv[2]);
+                    c1      =   stof(argv[3]);
+                    Voltage =   calcVibratorFrequency(2);
+                    printResults(7);
+                } else if(argc > 4) {
+                    R1          =   stof(argv[2]);
+                    c1          =   stof(argv[3]);
+                    r2          =   stof(argv[4]);
+                    c2          =   stof(argv[5]);
+                    Voltage     =   calcVibratorFrequency(2);
+                    Voltage2    =   calcVibratorFrequency(4);
+                    printResults(8);
+                }
+            } else {
+                int local;
+                cout << "Calculating Oscillation Frequency" << endl;
+                cout << "Is the oscillation synchronous (0/1)" << endl;
+                cin >> local;
+                if(local == 1) {
+                    cout << "Resistance in Ohms?" << endl << "> ";
+                    cin >> R1;
+                    cout << "Capacitance in Farads?" << endl << "> ";
+                    cin >> c1;
+                    Voltage     =   calcVibratorFrequency(2);
+                    printResults(7);
+                } else {
+                    cout << "Asynchrononous Oscillation" << endl << "Resistance 1 in Ohms?" << endl << "> ";
+                    cin >> R1;
+                    cout << "Capacitance 1 in Farads?" << endl << "> ";
+                    cin >> c1;
+                    cout << "Resistance 2 in Ohms?" << endl << "> ";
+                    cin >> r2;
+                    cout << "Capacitance 2 in Farads?" << endl << "> ";
+                    cin >> c2;
+                    Voltage     =   calcVibratorFrequency(2);
+                    Voltage2    =   calcVibratorFrequency(4);
+                    printResults(8);
+                }
+            }
         }
     } else {
         cout << helpstring << endl;

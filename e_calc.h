@@ -6,6 +6,7 @@ float   calcCurrentDensity();
 float   calcImpedance();
 float   calcParallelResistance();
 float   calcPower();
+float   calcVibratorFrequency(int n);
 void    printResults(int type);
 float   calcResistance();
 float   calcVoltage1();
