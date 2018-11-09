@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -108,20 +109,20 @@ void printResults(int type) {
     8 - dual frequency
     */
    if(type == 0) {
-        cout << "High Trigger Voltage: " << Voltage << endl;
-        cout << "Low Trigger Voltage: " << Voltage2 << endl;
+        cout << "High Trigger Voltage: " << setprecision(4) << Voltage << endl;
+        cout << "Low Trigger Voltage: " << setprecision(4) << Voltage2 << endl;
    } else if(type == 1) {
-       cout << "Parallel Resistance: " << overallResistance << endl;
+       cout << "Parallel Resistance: " << setprecision(2) << overallResistance << endl;
    } else if(type == 2) {
-       cout << "Resistance in Ohms: " << resistance << endl;
+       cout << "Resistance in Ohms: " << setprecision(2) << resistance << endl;
    } else if(type == 3) {
-       cout << "Current in Volts: " << Voltage << endl;
+       cout << "Current in Volts: " << setprecision(4) << Voltage << endl;
    } else if(type == 4) {
-       cout << "Impedance in Ampere: " << impedance << endl;
+       cout << "Impedance in Ampere: " << setprecision(6) << impedance << endl;
    } else if(type == 5) {
-       cout << "Power in Watts: " << watts << endl;
+       cout << "Power in Watts: " << setprecision(2) << watts << endl;
    } else if(type == 6) {
-       cout << "Current Density in A/mm^2: " << watts << endl;
+       cout << "Current Density in A/mm^2: " << setprecision(4) << watts << endl;
        if(watts > 25) {
            cout << "That's way too high." << endl;
        } else if(watts <= 25 && watts > 18) {
@@ -132,9 +133,9 @@ void printResults(int type) {
            cout << "There's plenty of room. You could try a thinner wire." << endl;
        }
    } else if(type == 7) {
-       cout << "Synchronized Vibration\nOscillation in Hertz: " << Voltage << endl;
+       cout << "Synchronized Vibration\nOscillation in Hertz: " << setprecision(4) << Voltage << endl;
    } else if(type == 8) {
-       cout << "Asynchrononous Vibration\nOscillation 1 in Hertz: " << Voltage << endl << "Oscillation 2 in Hertz: " << Voltage2 << endl;
+       cout << "Asynchrononous Vibration\nOscillation 1 in Hertz: " << setprecision(4) << Voltage << endl << "Oscillation 2 in Hertz: " << setprecision(4) << Voltage2 << endl;
    }
 }
 
