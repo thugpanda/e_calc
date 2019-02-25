@@ -55,9 +55,21 @@ float calcVoltage2() {
 float calcParallelResistance(int length) {
     float   multiply    =   resistors.at(0);
     float   additive    =   resistors.at(0);
-    for(int i=1; i<length; i++) {
-        multiply    =   multiply * resistors.at(i);
-        additive    +=  resistors.at(i);
+    if(length <= 1) {
+        cout << "Needs 2 resistors minimum!" << endl;
+        exit(0);
+    } else if(length == 2) { 
+        multiply    =   multiply * resistors.at(1);
+        additive    +=  resistors.at(1);
+
+        return (multiply/additive);
+    } else if(length > 2) {
+        additive    =   0;
+        for(int i=0; i<length; i++) {
+            additive    +=  (1/resistors.at(i));
+        }
+
+        return 1/additive;
     }
 
     return (multiply/additive);
@@ -195,6 +207,10 @@ int main(int argc, char *argv[]) {
             } else {
                 cout << "How many Resistors are there?" << endl << "> ";
                 cin >> nOfRes;
+                if(nOfRes < 2) {
+                    cout << "Needs 2 resistors minimum!" << endl;
+                    exit(0);
+                }
                 for(int i=0; i<nOfRes; i++) {
                     float   in  =   0;
                     cout << "Value of Resistor " << i+1 << "?" << endl << "> ";
